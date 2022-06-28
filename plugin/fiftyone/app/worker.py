@@ -6,11 +6,14 @@ from typing import List, Dict, Tuple
 import xmltodict
 from celery import current_app as current_celery_app
 from celery import shared_task
+from celery.utils.log import get_task_logger
 from fiftyone import Dataset, Sample, Polyline, Polylines
 from fiftyone.core.metadata import ImageMetadata
 
 from app.models.schemas import Task
 from conf.configs import conf
+
+logger = get_task_logger(__name__)
 
 
 def create_celery() -> current_celery_app:
@@ -160,6 +163,10 @@ def _build_polylines(voc_objects: list, width: int, height: int) -> List[Polylin
     for obj in voc_objects:
         label = obj["name"]
         points = _get_points_from_bndbox(obj["bndbox"], width, height)
+        logger.info(f"==========label: {label}")
+        logger.info(f"==========bndbox: {obj['bndbox']}")
+        logger.info(f"==========width: {width}, height: {height}")
+        logger.info(f"==========points: {points}")
         polyline = Polyline(
             label=label,
             points=[points],
